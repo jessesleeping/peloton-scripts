@@ -47,10 +47,12 @@ do
 	do
 		for k in 1 2 4 8 16 24
 		do
-			echo "./src/ycsb -b $b -k $k > /dev/null"
-			./src/ycsb -b $b -k $k > /dev/null
-			echo "cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}"
-			cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}
+			for u in "0" "0.5" "1"
+			echo "./src/ycsb -b $b -k $k -u $u > /dev/null"
+			./src/ycsb -b $b -k $k -u $u > /dev/null
+			u=`echo $u | sed "s/\./_/g"`
+			echo "cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}_u${u}"
+			cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}_u${u}
 		done
 	done
 done
