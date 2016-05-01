@@ -33,7 +33,7 @@ sed -i "s/MAX_ATTEMPT_COUNT [0-9].*/MAX_ATTEMPT_COUNT $ATTEMPT/g" $GC_H
 
 ../configure && make clean
 
-for m in "PESSIMISTIC" "OPTIMISTIC" "SPECULATIVE_READ" "EAGER_WRITE" "SSI" "TO"
+for m in "PESSIMISTIC" "OPTIMISTIC" "SPECULATIVE_READ" "EAGER_WRITE" "SSI" "TO" "OCC_RB"
 do
 	# modify the txn manager and compile
 	sed -i "s/CONCURRENCY_TYPE_.*/CONCURRENCY_TYPE_${m};/g" $TXNFAC_CPP
@@ -43,16 +43,21 @@ do
 		exit
 	fi
 	
-	for b in 2 4 8 12 16 20 24
+
+        for u in "0" "0.5" "1"
 	do
-		for k in 1 2 4 8 16 24
+		for k in 40
 		do
-			for u in "0" "0.5" "1"
-			echo "./src/ycsb -b $b -k $k -u $u > /dev/null"
-			./src/ycsb -b $b -k $k -u $u > /dev/null
-			u=`echo $u | sed "s/\./_/g"`
-			echo "cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}_u${u}"
-			cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}_u${u}
+                        for b in 1 2 4 8 16 24
+			do
+				echo "./src/ycsb -b $b -k $k -u $u > /dev/null"
+				./src/ycsb -b $b -k $k -u $u > /dev/null
+				u=`echo $u | sed "s/\./_/g"`
+				echo "cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}_u${u}"
+				echo -n ${PREFIX}_${m}_b${b}_k${k}_u${u}"    "
+				tail -1 $OUTPUTFILE
+				cp $OUTPUTFILE $RESDIR/${PREFIX}_${m}_b${b}_k${k}_u${u}
+			done
 		done
 	done
 done
